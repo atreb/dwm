@@ -3,9 +3,9 @@
 #include "push.c"
 /* appearance */
 static const char *fonts[] = {
-	"monospace:size=10"
+	"Inconsolata:size=10:weight=bold"
 };
-static const char dmenufont[]       = "monospace:size=10";
+static const char dmenufont[]       = "monospace:size=10:weight=bold";
 static const char normbordercolor[] = "#093a53";
 static const char normbgcolor[]     = "#000000";
 static const char normfgcolor[]     = "#ffffff";
