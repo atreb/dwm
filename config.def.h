@@ -5,7 +5,7 @@
 static const char *fonts[] = {
 	"Inconsolata:size=10:weight=bold"
 };
-static const char dmenufont[]       = "monospace:size=10:weight=bold";
+static const char dmenufont[]       = "Inconsolata:size=10:weight=bold";
 static const char normbordercolor[] = "#093a53";
 static const char normbgcolor[]     = "#000000";
 static const char normfgcolor[]     = "#ffffff";
