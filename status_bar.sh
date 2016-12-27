@@ -3,7 +3,7 @@
 # Some devices to reference later.
 mixer="Master"
 mixer_channel="Front Left"
-netdevice="wlp3s0"
+netdevice="wlo1"
 
 # Calculate network transfer speeds.
 netspeeds=$(ifstat -t 5 | grep $netdevice);
