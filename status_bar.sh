@@ -1,56 +1,34 @@
 #!/bin/bash
 
 # Some devices to reference later.
-mixer="Master"
-mixer_channel="Front Left"
-netdevice="wlo1"
+NET_DEVICE=`ip link | grep " UP " | awk '{print $2}'`
+NET_DEVICE=${NET_DEVICE/:/}
+SOUND_DEVICE="Master"
+DISK_DEVICE="/dev/sda3"
 
 # Calculate network transfer speeds.
-netspeeds=$(ifstat -t 5 | grep $netdevice);
-downspeed=$(echo $netspeeds | awk '{print $6}')
-upspeed=$(echo $netspeeds | awk '{print $8}')
-downspeed=$(expr $downspeed / 1024)
-upspeed=$(expr $upspeed / 1024)
-net=$(printf "+ %0dK - %0dK" "$downspeed" "$upspeed")
+net=`ifstat -t 5 | grep "${NET_DEVICE}" | awk '{print $1, "+" $6, "-" $8}'`
 
-# Get the current time.
-time=$(date +"%c")
+# Get stats for mem, swap and disk
+freestr=`free -h`
+diskstr=`df -h`
+mem=`echo $freestr | awk '{print "M", $9 "/" $8}'`
+swap=`echo $freestr | awk '{print "S", $16 "/" $15}'`
+disk=`df -h | grep "${DISK_DEVICE}" | awk '{print "D", $3 "/" $2}'`
 
 # Get battery stats.
-acpi=$(acpi)
-batstate=$(echo ${acpi} | awk '{print $3}')
-batperc=$(echo ${acpi} | awk '{print $4}')
-battime=$(echo ${acpi} | awk '{print $5}')
-batperc=${batperc/,/}
-bat="Batt ${batperc}"
-[ "${batstate}" == "Discharging," ] && bat="${bat} ($battime)"
-
-# Get CPU usage.
-loadavgs=$(uptime | awk -F 'load average:' '{print $2}' | awk '{print $2}')
-loadavg=${loadavgs/,/}
-cpu="Cpu ${loadavg}"
-
-# Get current RAM usage.
-maxmem=`free -m | grep "Mem" | awk '{print $2}'`
-usedmem=`free -m | grep "Mem" | awk '{print $3}'`
-buffmem=`free -m | grep "buffers/cache" | awk '{print $3}'`
-usedmem=$(($usedmem - $buffmem))
-usedmem=`expr $usedmem \* 100`
-percmem=`expr $usedmem / $maxmem`
-mem="Ram $percmem%"
+bat=`acpi | awk '{print $3 $4  $5}'`
+bat=${bat//,/ }
+bat=${bat//Unknown/}
 
 # Get the current volume.
-vol=`amixer get "${mixer}" | grep "${mixer_channel}:" | awk '{print $5}'`
-if [ "$vol" == "0%" ]
-then 
-    vol="Mute"
-else
-    vol=${vol/\[/}
-    vol=${vol/\]/}
-fi
-snd="Vol $vol"
+vol=`amixer get "${SOUND_DEVICE}" | grep "dB" | awk '{print $4 $6}'`
+vol=${vol//[/}
+vol=${vol//]/}
+vol="Vol $vol"
+
+# Get the current time.
+time=$(date +"%a %D %H:%M:%S")
 
 # Echo out the final result.
-#echo "$net :: $cpu :: $mem :: $bat :: $snd :: $time "
-echo "$net  |  $cpu |  $mem  |  $bat  |  $snd  |  $time "
-
+echo "$net | $mem $swap $disk | $bat | $vol | $time"
